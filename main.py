@@ -1,11 +1,20 @@
-from ultralytics import YOLO
+from utils import read_video, save_video
+from trackers import PlayerTracker
+def main():
 
-model = YOLO("yolov8x")  
+    #read video frames from input video
+    video_frames = read_video("input_videos/video_1.mp4")
 
-results = model.predict("input_videos/video_1.mp4", save=True)
+    #Initialize player tracker 
+    player_tracker = PlayerTracker("models/player_detector.pt")
 
-print(results)
-print("################################")
+    #Run tracker
+    player_tracks = player_tracker.get_object_tracks(video_frames)
 
-for box in results[0].boxes:
-    print(box)
+    #save video frames to output video
+    save_video(video_frames, "output_videos/output_video.avi")
+
+
+    
+if __name__ == "__main__":
+    main()
