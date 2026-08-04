@@ -1,0 +1,47 @@
+project:
+  name: basketball_analysis
+  seed: 42
+
+video:
+  input: data/input.mp4
+  output: outputs/analysis.mp4
+  stride: 1
+
+models:
+  player: models/player.pt
+  ball: models/ball.pt
+  court: models/court.pt
+
+detection:
+  player_confidence: 0.35
+  ball_confidence: 0.15
+  court_confidence: 0.25
+  iou: 0.5
+  device: null
+  batch_size: 8
+
+tracking:
+  max_age: 30
+  track_buffer: 30
+  match_threshold: 0.8
+
+team_assignment:
+  teams: 2
+  random_state: 42
+
+possession:
+  max_distance: 120.0
+  max_gap: 8
+
+motion:
+  pixels_per_meter: 10.0
+  smoothing_window: 5
+
+court:
+  output_width: 800
+  output_height: 1200
+  keypoint_threshold: 0.5
+
+outputs:
+  directory: outputs
+  metrics: outputs/metrics.json
