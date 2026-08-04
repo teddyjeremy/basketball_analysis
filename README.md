@@ -1,40 +1,96 @@
 # Basketball Analysis
 
-Computer-vision pipeline for basketball video analysis using YOLO, OpenCV, Supervision, NumPy, scikit-learn, and PyTorch.
+A computer-vision system for analyzing basketball games from video. The project combines object detection, multi-object tracking, court geometry, team identification, possession analysis, movement metrics, event detection, and tactical visualization.
 
-## Capabilities
+## Features
 
 - Player detection and tracking
-- Basketball detection
+- Basketball detection and tracking
 - Camera-motion estimation
 - Team assignment
 - Ball possession estimation
-- Pass and interception events
+- Pass and interception detection
 - Player speed and distance estimation
 - Court keypoint detection
-- Homography-based tactical projection
-- Match-level metrics and reports
-- Video visualization
+- Homography-based court projection
+- Tactical-view visualization
+- Match-level statistics
+- Analysis reports
+- Video rendering
 - Automated tests
+
+## Architecture
+
+```text
+Input Video
+    │
+    ├── Player Detection ──────┐
+    ├── Ball Detection ────────┤
+    ├── Court Keypoints ───────┤
+    └── Camera Motion ─────────┘
+                │
+                ▼
+        Tracking and Geometry
+                │
+        ┌───────┼────────┐
+        ▼       ▼        ▼
+      Teams  Possession  Court Projection
+        │       │        │
+        └───────┼────────┘
+                ▼
+       Pass / Interception Events
+                │
+                ▼
+       Speed / Distance Metrics
+                │
+                ▼
+       Analysis + Visualization
+                │
+                ▼
+          Output Video
+          + Match Report
+```
 
 ## Project Structure
 
 ```text
 basketball_analysis/
 ├── analysis/
+│   ├── __init__.py
+│   └── report.py
 ├── ball_acquisition/
+│   └── ball_acquisition.py
 ├── camera_movement_estimator/
 ├── court_keypoint_detector/
+│   ├── court_keypoint_detector.py
+│   └── court_template.py
 ├── configs/
+│   └── config.yaml
 ├── drawers/
+│   ├── ball_drawer.py
+│   ├── court_drawer.py
+│   ├── player_drawer.py
+│   ├── possession_drawer.py
+│   └── tactical_view_drawer.py
 ├── pass_and_interception_detector/
+│   └── pass_and_interception_detector.py
 ├── pipelines/
+│   ├── __init__.py
+│   ├── match_analysis_pipeline.py
+│   └── video_analysis.py
 ├── scripts/
+│   └── run_analysis.py
 ├── speed_and_distance_calculator/
 ├── tactical_view_converter/
+│   └── tactical_view_converter.py
 ├── team_assigner/
 ├── trackers/
 ├── utils/
+│   ├── config_loader.py
+│   ├── interpolation.py
+│   ├── metrics.py
+│   ├── serialization.py
+│   └── video_writer.py
 ├── tests/
 ├── requirements.txt
 └── README.md
@@ -69,85 +125,66 @@ pip install supervision pyyaml pytest
 
 ## Models
 
-Place trained YOLO weights in `models/` and configure their paths in `configs/config.yaml`.
+Place the trained model weights in `models/` and configure their paths in `configs/config.yaml`.
 
-The pipeline expects separate models for player detection, ball detection, and court keypoints.
+The pipeline is designed around separate models for:
+
+- Player detection
+- Basketball detection
+- Court keypoint detection
+
+Model weights are intentionally not included in the repository.
 
 ## Configuration
 
-Runtime settings are defined in `configs/config.yaml`, including:
+Runtime configuration is stored in `configs/config.yaml`.
 
-- video input and output
-- model paths
-- detection confidence
-- IoU
-- batch size
-- device
-- team count
-- possession distance
-- motion calibration
-- court output dimensions
+It controls:
+
+- Input and output videos
+- Model paths
+- Detection confidence thresholds
+- IoU thresholds
+- Inference device
+- Batch size
+- Team assignment
+- Possession distance
+- Motion calibration
+- Court projection dimensions
 
 ## Running
+
+Run the analysis pipeline with the default configuration:
 
 ```bash
 python scripts/run_analysis.py --config configs/config.yaml
 ```
 
-Override the configured input and output paths:
+Specify custom input and output files:
 
 ```bash
-python scripts/run_analysis.py --config configs/config.yaml --input data/game.mp4 --output outputs/game_analysis.mp4
+python scripts/run_analysis.py \
+    --config configs/config.yaml \
+    --input data/game.mp4 \
+    --output outputs/game_analysis.mp4
 ```
 
 ## Testing
+
+Run the test suite with:
 
 ```bash
 pytest -q
 ```
 
-GitHub Actions runs the test suite on pushes and pull requests.
+The repository also includes a GitHub Actions workflow for automated testing.
 
-## Architecture
+## Development Direction
 
-```text
-Video
-  |
-  +--> Player YOLO --> ByteTrack
-  |
-  +--> Ball YOLO
-  |
-  +--> Court Keypoints --> Homography
-  |
-  +--> Camera Motion
-          |
-          v
-Player Tracks + Ball Tracks + Court Geometry
-          |
-          +--> Team Assignment
-          |
-          +--> Ball Possession
-          |
-          +--> Pass / Interception Events
-          |
-          +--> Speed / Distance
-          |
-          +--> Tactical Projection
-          |
-          v
-Analysis Report + Visualized Video
-```
+The project is structured as a modular basketball analytics system rather than a single video-processing script. Detection, tracking, team identification, possession, event detection, court geometry, motion analysis, visualization, and reporting are separated so that individual components can be improved or replaced independently.
 
-## Reference
-
-The project architecture and implementation direction are informed by the basketball/football computer-vision analysis work by Abdullah Tarek:
-
-https://github.com/abdullahtarek/basketball_analysis
-
-https://github.com/abdullahtarek/football_analysis
-
-The project is independently extended for basketball analysis rather than being a direct copy of those repositories.
+The long-term goal is to support detailed basketball analysis from broadcast and tactical video, including player movement, team spacing, possession sequences, passing networks, defensive positioning, and court-based tactical analysis.
 
 ## License
 
-This repository is intended for educational and research use. Verify the licenses and terms of any third-party models, datasets, repositories, and dependencies before redistribution or commercial use.
+This repository is intended for educational and research use. Review the licenses and terms of third-party software, models, datasets, and other dependencies before redistribution or commercial use.
