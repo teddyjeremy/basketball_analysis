@@ -15,19 +15,36 @@ class CourtKeypointDetector:
         self.device = device
 
     def detect(self, frame):
-        result = self.model.predict(
+        results = self.model.predict(
             source=frame,
             conf=self.confidence,
             device=self.device,
             verbose=False,
-        )[0]
-        if result.keypoints is None:
-            return np.empty((0, 2), dtype=np.float32), np.empty((0,), dtype=np.float32)
+        )
+        if not results:
+            return (
+                np.empty((0, 2), dtype=np.float32),
+                np.empty((0,), dtype=np.float32),
+            )
+
+        result = results[0]
+        if result.keypoints is None or len(result.keypoints) == 0:
+            return (
+                np.empty((0, 2), dtype=np.float32),
+                np.empty((0,), dtype=np.float32),
+            )
+
         points = result.keypoints.xy[0].detach().cpu().numpy().astype(np.float32)
         if result.keypoints.conf is None:
             confidence = np.ones(len(points), dtype=np.float32)
         else:
-            confidence = result.keypoints.conf[0].detach().cpu().numpy().astype(np.float32)
+            confidence = (
+                result.keypoints.conf[0]
+                .detach()
+                .cpu()
+                .numpy()
+                .astype(np.float32)
+            )
         return points, confidence
 
     @staticmethod
